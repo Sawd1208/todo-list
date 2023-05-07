@@ -39,6 +39,14 @@ app.get('/todos/new', (req, res) => {
   return res.render('new')
 })
 
+app.get('/todos/:id', (req, res) => {
+  const id = req.params.id
+  return Todo.findById(id)
+    .lean()
+    .then(todo => res.render('detail', { todo }))
+    .catch(error => console.log(error))
+})
+
 app.post('/todos', (req, res) => {
   const name = req.body.name //從req.body 拿出表單裡的name資料
   // 作法一
