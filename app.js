@@ -2,6 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const exphbs = require('express-handlebars')
 const Todo = require('./models/todo')
+const bodyParser = require('body-parser')
 
 // 加入這段 code, 僅在非正式環境時，使用dotenv
 if (process.env.NODE_ENV !== 'production') {
@@ -25,11 +26,31 @@ db.once('open', () => {
 app.engine('hbs', exphbs({ defaultLayout: 'main', extname: 'hbs'}))
 app.set('view engine', 'hbs')
 
+app.use(bodyParser.urlencoded({ extended: true }))
+
 app.get('/', (req, res) => {
   Todo.find() //取出 Todo model 的所有資料
     .lean() //把Mongoose 的 model 物件轉換成乾淨的 javascript 資料陣列
     .then(todos => res.render('index', { todos })) //將資料傳給 index 模板
     .catch(error => console.error(error)) //處理錯誤
+})
+
+app.get('/todos/new', (req, res) => {
+  return res.render('new')
+})
+
+app.post('/todos', (req, res) => {
+  const name = req.body.name //從req.body 拿出表單裡的name資料
+  // 作法一
+  return Todo.create({ name })  //存入資料庫
+    .then(() => res.redirect('/')) //新增完成後導回首頁
+    .catch(error => console.log(error))
+
+  // // 作法二
+  // const todo = new Todo({ name })  ////從Todo 產生一個實例
+  // return todo.save()  //將該實例存入資料庫
+  //   .then(() => res.redirect('/'))
+  //   .catch(error => console.log(error))  
 })
 
 app.listen(3000, () => {
