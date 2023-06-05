@@ -8,14 +8,15 @@ router.get('/login', (req, res) => {
   res.render('login')
 })
 
-router.get('/register', (req, res) => {
-  res.render('register')
-})
 // 加入 middleware，驗證 request 登入狀態
 router.post('/login', passport.authenticate('local', {
   successRedirect: '/',
   failureRedirect: '/users/login'
 }))
+
+router.get('/register', (req, res) => {
+  res.render('register')
+})
 
 router.post('/register', (req, res) => {
   const { name, email, password, confirmPassword } = req.body
@@ -40,6 +41,11 @@ router.post('/register', (req, res) => {
       }
     })
     .catch(error => console.log(error))
+})
+
+router.get('/logout', (req, res) => {
+  req.logout()
+  res.redirect('/users/login')
 })
 
 module.exports = router
